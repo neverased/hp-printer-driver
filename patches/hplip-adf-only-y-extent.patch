@@ -1,0 +1,25 @@
+--- a/scan/sane/sclpml.c
++++ b/scan/sane/sclpml.c
+@@ -1679,6 +1679,22 @@
+                 SCL_CMD_INQUIRE_MAXIMUM_VALUE,
+                 SCL_CMD_SET_Y_EXTENT,
+                 &hpaio->scl.maxYExtent, 0, 0 );
++
++    /* ADF-only devices can report a shorter legacy window through the
++     * generic inquiry.  Prefer their source-specific capability when
++     * available; retain the generic limit for older implementations. */
++    if( hpaio->scl.adfCapability && !hpaio->scl.flatbedCapability )
++    {
++        int maxYExtentAdf = 0;
++        if( SclInquire( hpaio->deviceid, hpaio->scan_channelid,
++                       SCL_CMD_INQUIRE_MAXIMUM_VALUE,
++                       SCL_PSEUDO_ADF_Y_EXTENT,
++                       &maxYExtentAdf, 0, 0 ) == SANE_STATUS_GOOD &&
++            maxYExtentAdf > 0 )
++        {
++            hpaio->scl.maxYExtent = maxYExtentAdf;
++        }
++    }
+ 
+     DBG(8, "Maximum extents: x=%d, y=%d %s %d\n", hpaio->scl.maxXExtent, hpaio->scl.maxYExtent, __FILE__, __LINE__);
+     
