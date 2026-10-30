@@ -1,0 +1,5 @@
+.cache/
+.build/
+reports/
+__pycache__/
+.DS_Store
